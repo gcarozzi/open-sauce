@@ -1,0 +1,50 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background: #f8f8f8 url('https://assets.nintendo.com/image/upload/f_auto/q_auto/dpr_auto/ncom/en_US/switch/system-update/icon_background_pattern') repeat;
+    color: #333;
+}
+header {
+    background: #e60012;
+    color: #fff;
+    padding: 1rem;
+    text-align: center;
+    position: sticky;
+    top: 0;
+}
+header h1 {
+    margin: 0 0 0.5rem 0;
+    font-weight: 700;
+}
+#download-ics {
+    background: #fff;
+    color: #e60012;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.day {
+    margin: 1rem;
+    background: rgba(255,255,255,0.9);
+    border-radius: 8px;
+    padding: 1rem;
+}
+.event {
+    border-bottom: 1px solid #ccc;
+    padding: 0.5rem 0;
+}
+.event:last-child {
+    border-bottom: none;
+}
+.time {
+    font-weight: bold;
+    color: #e60012;
+}
+@media (min-width: 600px) {
+    .day {
+        margin: 1rem auto;
+        max-width: 600px;
+    }
+}
