@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Open Sauce 2025</title>
+<style>
+/* Basic reset */
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#111;background:#fff;line-height:1.6;}
+html{scroll-behavior:smooth;}
+img{max-width:100%;display:block;}
+a{text-decoration:none;color:inherit;}
+
+/* Navbar */
+nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.8);backdrop-filter:blur(10px);display:flex;justify-content:space-between;align-items:center;padding:1rem 2rem;transition:background 0.3s;}
+nav.scrolled{background:rgba(255,255,255,0.95);}
+nav .logo{font-weight:600;font-size:1.2rem;letter-spacing:0.1em;}
+nav .cta{padding:0.5rem 1rem;border:none;border-radius:4px;background:#0071e3;color:#fff;cursor:pointer;font-size:1rem;transition:transform 0.2s;}
+nav .cta:hover{transform:scale(1.05);}
+
+/* Hero */
+.hero{height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;background:url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1650&q=80') center/cover fixed;position:relative;color:#fff;}
+.hero::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.4);}
+.hero-content{position:relative;z-index:1;max-width:800px;padding:0 1rem;}
+.hero h1{font-size:3rem;margin-bottom:1rem;letter-spacing:-1px;}
+.hero .subtitle{font-size:1.2rem;margin-bottom:1.5rem;}
+.hero .cta{padding:0.75rem 2rem;font-size:1.1rem;border:none;border-radius:6px;background:#0071e3;color:#fff;cursor:pointer;transition:transform 0.2s;}
+.hero .cta:hover{transform:scale(1.05);}
+.microcopy{margin-top:0.75rem;font-size:0.9rem;color:#eee;}
+
+/* Schedule */
+#schedule{padding:3rem 1rem;scroll-snap-type:y proximity;}
+.day{margin-bottom:2rem;}
+.day h2{font-size:2rem;margin-bottom:1rem;border-bottom:1px solid #eee;padding-bottom:0.5rem;}
+.event{display:flex;gap:1rem;margin-bottom:1.5rem;opacity:0;transform:translateY(20px);transition:opacity 0.6s,transform 0.6s;}
+.event.visible{opacity:1;transform:none;}
+.event img{width:120px;height:120px;object-fit:cover;border-radius:8px;}
+.event-info h3{font-size:1.1rem;margin-bottom:0.5rem;color:#0071e3;}
+.event-info .time{font-weight:bold;margin-bottom:0.25rem;}
+.event-info .speakers{font-style:italic;margin-bottom:0.25rem;}
+.event-info .location{color:#555;margin-bottom:0.5rem;}
+
+/* Footer */
+footer{text-align:center;padding:2rem;background:#f5f5f5;color:#666;}
+
+/* Popup */
+.popup{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:200;}
+.popup.hidden{display:none;}
+.popup-box{background:#fff;padding:2rem;border-radius:8px;text-align:center;max-width:300px;}
+.popup-box p{margin-bottom:1rem;font-weight:500;}
+.popup-box .cta{padding:0.5rem 1rem;border:none;border-radius:4px;background:#0071e3;color:#fff;cursor:pointer;transition:transform 0.2s;}
+.popup-box .cta:hover{transform:scale(1.05);}
+
+@media(min-width:768px){
+  .hero h1{font-size:4rem;}
+  .hero .subtitle{font-size:1.5rem;}
+}
+</style>
+</head>
+<body>
+<nav id="navbar">
+  <div class="logo">Open Sauce</div>
+  <button id="downloadNav" class="cta">Download Calendar</button>
+</nav>
+<header class="hero">
+  <div class="hero-content">
+    <h1>Open Sauce 2025</h1>
+    <p class="subtitle">20+ talks across 3 days &bull; Happening July 25–27</p>
+    <button id="downloadHero" class="cta">Download Calendar</button>
+    <p class="microcopy">Join thousands planning their visit!</p>
+  </div>
+</header>
+<main>
+  <section id="schedule">
+    <!-- Schedule will load here -->
+  </section>
+</main>
+<footer>
+  &copy; 2025 Open Sauce
+</footer>
+<div id="exitPopup" class="popup hidden">
+  <div class="popup-box">
+    <p>Wait! Don’t leave without adding Open Sauce to your calendar.</p>
+    <button id="downloadPopup" class="cta">Download Calendar</button>
+  </div>
+</div>
+<script>
+const AGENDA_URL = 'https://raw.githubusercontent.com/gcarozzi/open-sauce/main/agenda.json';
+let agendaData = {};
+let popupShown = false;
+const baseDates = {friday:'20250725', saturday:'20250726', sunday:'20250727'};
+
+function pad(n){return n.toString().padStart(2,'0');}
+function parseDate(dateStr,time){
+  const [t,ap] = time.split(' ');
+  let [h,m] = t.split(':').map(Number);
+  if(ap.toLowerCase()==='pm' && h!==12) h+=12;
+  if(ap.toLowerCase()==='am' && h===12) h=0;
+  return new Date(dateStr.slice(0,4)+'-'+dateStr.slice(4,6)+'-'+dateStr.slice(6,8)+'T'+pad(h)+':'+pad(m)+':00');
+}
+function formatICS(d){return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'T'+pad(d.getHours())+pad(d.getMinutes())+'00';}
+function escapeICS(t){return (t||'').replace(/\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;');}
+
+function generateICS(){
+  const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Open Sauce//Schedule//EN'];
+  Object.keys(agendaData).forEach(dayKey=>{
+    const events=agendaData[dayKey];
+    const date=baseDates[dayKey];
+    events.forEach((ev,i)=>{
+      const start=parseDate(date,ev.time);
+      const end=new Date(start.getTime()+((parseInt(ev.length)||30)*60000));
+      lines.push('BEGIN:VEVENT');
+      lines.push('UID:'+Date.now()+i+'@opensauce');
+      lines.push('DTSTAMP:'+formatICS(new Date()));
+      lines.push('DTSTART:'+formatICS(start));
+      lines.push('DTEND:'+formatICS(end));
+      lines.push('SUMMARY:'+escapeICS(ev.title));
+      lines.push('DESCRIPTION:'+escapeICS(ev.description));
+      lines.push('LOCATION:'+escapeICS(ev.where));
+      lines.push('END:VEVENT');
+    });
+  });
+  lines.push('END:VCALENDAR');
+  const blob=new Blob([lines.join('\r\n')],{type:'text/calendar'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='open-sauce.ics';
+  document.body.appendChild(a);a.click();a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function renderSchedule(data){
+  agendaData=data; // store for ICS
+  const container=document.getElementById('schedule');
+  const dayNames={friday:'Friday, July 25', saturday:'Saturday, July 26', sunday:'Sunday, July 27'};
+  Object.keys(data).forEach(dayKey=>{
+    const sec=document.createElement('section');
+    sec.className='day';
+    const h2=document.createElement('h2');
+    h2.textContent=dayNames[dayKey];
+    sec.appendChild(h2);
+    data[dayKey].forEach(ev=>{
+      const card=document.createElement('div');
+      card.className='event';
+      const img=document.createElement('img');
+      img.src=ev.image || (ev.speakers && ev.speakers[0] ? ev.speakers[0].media : '');
+      img.alt=ev.title;
+      card.appendChild(img);
+      const info=document.createElement('div');
+      info.className='event-info';
+      info.innerHTML=`<div class="time">${ev.time}</div>
+        <h3>${ev.title}</h3>
+        <div class="speakers">${(ev.speakers||[]).map(s=>s.name).join(', ')}</div>
+        <div class="location">${ev.where}</div>
+        <p>${ev.description}</p>`;
+      card.appendChild(info);
+      sec.appendChild(card);
+    });
+    container.appendChild(sec);
+  });
+  observe();
+}
+
+function observe(){
+  const observer=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
+  },{threshold:0.1});
+  document.querySelectorAll('.event').forEach(el=>observer.observe(el));
+}
+
+function showPopup(){
+  popupShown=true;
+  document.getElementById('exitPopup').classList.remove('hidden');
+}
+
+// Event listeners
+['downloadNav','downloadHero','downloadPopup'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',()=>{
+    console.log('Download Calendar clicked');
+    generateICS();
+    if(id==='downloadPopup') document.getElementById('exitPopup').classList.add('hidden');
+  });
+});
+
+document.addEventListener('mouseout',e=>{
+  if(!popupShown && !e.relatedTarget && e.clientY<=50) showPopup();
+});
+window.addEventListener('blur',()=>{if(!popupShown) showPopup();});
+window.addEventListener('scroll',()=>{
+  const nav=document.getElementById('navbar');
+  if(window.scrollY>10) nav.classList.add('scrolled');
+  else nav.classList.remove('scrolled');
+});
+
+fetch(AGENDA_URL).then(r=>r.json()).then(renderSchedule).catch(console.error);
+</script>
+</body>
+</html>
+
