@@ -86,4 +86,31 @@ async function downloadCalendar(){
 window.addEventListener('DOMContentLoaded', async () => {
   await loadSchedule();
   document.getElementById('downloadBtn').addEventListener('click', downloadCalendar);
+  document.body.classList.add('sr');
+  // magnetic hover effect
+  const btn=document.getElementById('downloadBtn');
+  btn.addEventListener('mousemove',e=>{
+    const r=btn.getBoundingClientRect();
+    const x=e.clientX-r.left-r.width/2;
+    const y=e.clientY-r.top-r.height/2;
+    btn.style.transform=`translate(${x*0.2}px,${y*0.2}px)`;
+  });
+  btn.addEventListener('mouseleave',()=>{btn.style.transform='';});
+
+  // ScrollReveal animations
+  if(window.ScrollReveal){
+    ScrollReveal().reveal('.event',{distance:'20px',origin:'bottom',interval:100,cleanup:true});
+  }
+
+  // sticky header fading
+  const observer=new IntersectionObserver(entries=>{
+    entries.forEach(ent=>{
+      if(ent.intersectionRatio<1){
+        ent.target.dataset.stuck='true';
+      }else{
+        delete ent.target.dataset.stuck;
+      }
+    });
+  },{threshold:[1]});
+  document.querySelectorAll('.day h2').forEach(h=>observer.observe(h));
 });
