@@ -115,6 +115,19 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
       });
     });
+
+    // hero fade and scale when scrolling into main content
+    gsap.to('.hero-content', {
+      opacity:0,
+      scale:0.9,
+      ease:'none',
+      scrollTrigger:{
+        trigger:'#schedule',
+        start:'top top',
+        end:'+=150',
+        scrub:true
+      }
+    });
   }
 
   // sticky header fading

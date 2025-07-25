@@ -2,27 +2,60 @@ body{
   margin:0;
   font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
   line-height:1.4;
-  background:#fff;
-  color:#333;
+  background:#FFFCF2;
+  color:#252422;
   scroll-behavior:smooth;
 }
+
 .hero{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:33vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  color:#FFFCF2;
+}
+.video-wrapper{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+  z-index:0;
+}
+.video-wrapper iframe{
+  width:100%;
+  height:100%;
+  pointer-events:none;
+}
+.overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to bottom, rgba(255,255,255,0) 0%, #252422 100%);
+  z-index:1;
+}
+.hero-content{
+  position:relative;
+  z-index:2;
   text-align:center;
   padding:2rem 1rem;
-  background:linear-gradient(120deg,#000,#333);
-  color:#fff;
 }
-.hero h1{margin:0 0 1rem; font-size:2rem;}
+.hero h1{margin:0 0 1rem;font-size:2rem;}
 .hero button{
-  background:#007aff;
+  background:#EB5E28;
   border:0;
-  color:#fff;
+  color:#FFFCF2;
   padding:.75rem 1.5rem;
   border-radius:8px;
   font-size:1rem;
   cursor:pointer;
-  transition:transform .2s;
+  transition:transform .2s, background .3s;
   will-change:transform;
+}
+.hero button:hover{
+  background:#d64c1f;
 }
 #schedule{
   padding:2rem 1rem;
@@ -30,7 +63,7 @@ body{
   flex-direction:column;
   gap:2rem;
   max-width:900px;
-  margin:0 auto;
+  margin:33vh auto 0;
   scroll-snap-type:y mandatory;
 }
 .day{
