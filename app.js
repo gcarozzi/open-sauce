@@ -83,23 +83,38 @@ async function downloadCalendar(){
   URL.revokeObjectURL(url);
 }
 
+
 window.addEventListener('DOMContentLoaded', async () => {
   await loadSchedule();
   document.getElementById('downloadBtn').addEventListener('click', downloadCalendar);
-  document.body.classList.add('sr');
-  // magnetic hover effect
-  const btn=document.getElementById('downloadBtn');
-  btn.addEventListener('mousemove',e=>{
-    const r=btn.getBoundingClientRect();
-    const x=e.clientX-r.left-r.width/2;
-    const y=e.clientY-r.top-r.height/2;
-    btn.style.transform=`translate(${x*0.2}px,${y*0.2}px)`;
-  });
-  btn.addEventListener('mouseleave',()=>{btn.style.transform='';});
 
-  // ScrollReveal animations
-  if(window.ScrollReveal){
-    ScrollReveal().reveal('.event',{distance:'20px',origin:'bottom',interval:100,cleanup:true});
+  // magnetic hover effect
+  const btn = document.getElementById('downloadBtn');
+  btn.addEventListener('mousemove', e => {
+    const r = btn.getBoundingClientRect();
+    const x = e.clientX - r.left - r.width/2;
+    const y = e.clientY - r.top - r.height/2;
+    gsap.to(btn, {x:x*0.3, y:y*0.3, duration:0.3, ease:'power2.out'});
+  });
+  btn.addEventListener('mouseleave', () => {
+    gsap.to(btn, {x:0, y:0, duration:0.4, ease:'power2.out'});
+  });
+
+  // GSAP scroll animations
+  if(window.gsap){
+    gsap.registerPlugin(ScrollTrigger);
+    gsap.utils.toArray('.event').forEach(el => {
+      gsap.to(el, {
+        opacity:1,
+        y:0,
+        duration:0.6,
+        ease:'power1.out',
+        scrollTrigger:{
+          trigger:el,
+          start:'top 85%'
+        }
+      });
+    });
   }
 
   // sticky header fading

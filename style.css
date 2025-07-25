@@ -4,6 +4,7 @@ body{
   line-height:1.4;
   background:#fff;
   color:#333;
+  scroll-behavior:smooth;
 }
 .hero{
   text-align:center;
@@ -60,11 +61,9 @@ body{
   align-items:flex-start;
   border-bottom:1px solid #eee;
   padding-bottom:1rem;
-  transition:transform .5s ease,opacity .5s ease,box-shadow .3s,scale .3s;
-}
-body.sr .event{
   opacity:0;
   transform:translateY(40px);
+  transition:transform .5s ease, opacity .5s ease, box-shadow .3s;
 }
 .event img{
   width:64px;
@@ -89,9 +88,4 @@ body.sr .event{
 
 @media (max-width:599px){
   .hero h1{font-size:1.5rem;}
-}
-
-.reveal{
-  opacity:1 !important;
-  transform:none !important;
 }
