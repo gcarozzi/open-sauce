@@ -18,6 +18,10 @@ layout: none
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <style>
+      :root {
+        --card-width: 340px;
+      }
+
       body {
         margin: 0;
         font-family: "Poppins", sans-serif;
@@ -113,29 +117,24 @@ layout: none
         margin-bottom: 40px;
       }
 
-      /* Sticky Scroll Styles */
-      .scroll-section-wrapper {
-        position: relative;
-        height: 600vh;
-      }
-
-      .sticky-container {
-        position: sticky;
-        top: 0;
-        height: 100vh;
-        width: 100%;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-      }
-
       .tabs-container {
         display: flex;
         gap: 16px;
-        margin-bottom: 16px;
+        margin-bottom: 10px;
         justify-content: center;
-        position: relative;
-        z-index: 5;
+      }
+
+      .scroll-snap-container {
+        display: flex;
+        gap: 24px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding: 0 calc(50vw - var(--card-width) / 2);
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+      .scroll-snap-container::-webkit-scrollbar {
+        display: none;
       }
 
       .tab-button {
@@ -161,27 +160,19 @@ layout: none
         border-color: #C7B9FF;
       }
 
-      .cards-track {
-        position: relative;
-        height: 100%;
-        display: flex;
-        flex-wrap: nowrap;
-        align-items: center;
-        gap: 24px;
-        flex: 1;
-      }
+
 
       /* Event Card Styling */
       .event-card {
         background-color: #2C2C2C;
         border-radius: 16px;
         padding: 24px;
-        min-width: 340px; /* Use min-width to prevent squishing */
-        width: 340px;
+        width: var(--card-width);
         flex-shrink: 0;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
+        scroll-snap-align: center;
       }
 
       .card-header {
@@ -252,13 +243,6 @@ layout: none
         transition: background-color 0.3s ease;
       }
 
-      #download-calendar {
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 100;
-      }
 
       .primary-cta-button:hover {
         background-color: #C7B9FF;
@@ -403,38 +387,31 @@ layout: none
     <main id="schedule">
       <section class="schedule-section">
         <h2 class="section-title">Event Schedule</h2>
-        <div class="scroll-section-wrapper">
-          <div class="sticky-container">
-            <div class="tabs-container">
-              <button class="tab-button" data-day="friday">Friday</button>
-              <button class="tab-button" data-day="saturday">Saturday</button>
-              <button class="tab-button" data-day="sunday">Sunday</button>
-            </div>
-            <div class="cards-track"></div>
-          </div>
+        <div class="tabs-container">
+          <button class="tab-button" data-day="friday">Friday</button>
+          <button class="tab-button" data-day="saturday">Saturday</button>
+          <button class="tab-button" data-day="sunday">Sunday</button>
         </div>
 
-        <a href="open-sauce-schedule.ics" id="download-calendar" class="primary-cta-button" download>Download Calendar</a>
+        <div class="scroll-snap-container"></div>
+
+        <a href="open-sauce-schedule.ics" class="primary-cta-button" download>Download Calendar</a>
       </section>
-    </main>
-    <script>
-      let scheduleData;
+      </main>
+      <script>
       document.addEventListener('DOMContentLoaded', async () => {
         const res = await fetch('agenda.json');
-        scheduleData = await res.json();
-        const track = document.querySelector('.cards-track');
+        const scheduleData = await res.json();
+        const container = document.querySelector('.scroll-snap-container');
         const tabs = document.querySelectorAll('.tab-button');
-        const downloadBtn = document.getElementById('download-calendar');
-        const heroBtn = document.querySelector('.hero-cta');
-        let allSpeakers = [];
-        let activeFilter = null;
+        const speakers = [];
 
         ['friday','saturday','sunday'].forEach(day => {
           scheduleData[day].forEach(evt => {
             if (Array.isArray(evt.speakers)) {
               evt.speakers.forEach(sp => {
                 if (sp.name && sp.media) {
-                  allSpeakers.push({
+                  speakers.push({
                     ...sp,
                     time: evt.time,
                     where: evt.where,
@@ -448,7 +425,7 @@ layout: none
           });
         });
 
-        allSpeakers.forEach(sp => {
+        speakers.forEach(sp => {
           const card = document.createElement('div');
           card.className = 'event-card';
           card.dataset.day = sp.day;
@@ -465,143 +442,29 @@ layout: none
               </div>
             </div>
             <p class="event-description">${sp.description}</p>`;
-          track.appendChild(card);
+          container.appendChild(card);
         });
 
-        const cardWidth = 340;
-        const gap = 24;
+        const cards = Array.from(container.querySelectorAll('.event-card'));
+        const maxHeight = Math.max(...cards.map(c => c.offsetHeight));
+        cards.forEach(c => c.style.height = maxHeight + 'px');
 
-        function updateTrackWidth() {
-          const visible = Array.from(track.children).filter(c => c.style.display !== 'none');
-          track.style.width = visible.length * (cardWidth + gap) - gap + 'px';
-        }
-
-        function setUniformHeight() {
-          const cards = Array.from(track.children).filter(c => c.style.display !== 'none');
-          let maxH = 0;
-          cards.forEach(c => { if (c.offsetHeight > maxH) maxH = c.offsetHeight; });
-          cards.forEach(c => { c.style.height = maxH + 'px'; });
-        }
-
-        updateTrackWidth();
-        setUniformHeight();
-
-        function applyFilter(day) {
-          activeFilter = day;
-          Array.from(track.children).forEach(card => {
-            card.style.display = !day || card.dataset.day === day ? 'flex' : 'none';
-          });
-          updateTrackWidth();
-          setUniformHeight();
-          track.style.transform = 'translateX(0)';
-          updateActiveDay(0);
-        }
-
-        tabs.forEach(btn => {
-          btn.addEventListener('click', () => {
-            if (activeFilter === btn.dataset.day) {
-              activeFilter = null;
-              tabs.forEach(b => b.classList.remove('active'));
-              applyFilter(null);
-            } else {
-              tabs.forEach(b => b.classList.remove('active'));
-              btn.classList.add('active');
-              applyFilter(btn.dataset.day);
+        const observer = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const activeDay = entry.target.dataset.day;
+              tabs.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.day === activeDay);
+              });
             }
           });
+        }, {
+          root: container,
+          rootMargin: '0px -49% 0px -49%',
+          threshold: 0.5
         });
-        applyFilter(null);
 
-        const wrapper = document.querySelector('.scroll-section-wrapper');
-
-        function updateActiveDay(transformX) {
-          if (activeFilter) return;
-          const visible = Array.from(track.children).filter(c => c.style.display !== 'none');
-          const index = Math.round(transformX / (cardWidth + gap));
-          const card = visible[Math.min(index, visible.length - 1)];
-          if (!card) return;
-          tabs.forEach(b => b.classList.toggle('active', b.dataset.day === card.dataset.day));
-        }
-
-        function onScroll() {
-          const horizontalScrollDistance = track.scrollWidth - window.innerWidth;
-          const rect = wrapper.getBoundingClientRect();
-          const scrollProgress = -rect.top;
-          const total = rect.height - window.innerHeight;
-          let pct = scrollProgress / total;
-          pct = Math.min(Math.max(pct, 0), 1);
-          const transformX = pct * horizontalScrollDistance;
-          requestAnimationFrame(() => {
-            track.style.transform = `translateX(-${transformX}px)`;
-            updateActiveDay(transformX);
-          });
-        }
-
-        window.addEventListener('scroll', onScroll);
-        onScroll();
-
-        function to24(dateStr, timeStr) {
-          const [t, ampm] = timeStr.split(' ');
-          let [h, m] = t.split(':').map(Number);
-          if (ampm === 'PM' && h !== 12) h += 12;
-          if (ampm === 'AM' && h === 12) h = 0;
-          const d = new Date(dateStr);
-          d.setHours(h, m, 0, 0);
-          return d;
-        }
-
-        function formatICS(d) {
-          const pad = n => String(n).padStart(2, '0');
-          return (
-            d.getFullYear() +
-            pad(d.getMonth() + 1) +
-            pad(d.getDate()) +
-            'T' +
-            pad(d.getHours()) +
-            pad(d.getMinutes()) +
-            '00'
-          );
-        }
-
-        function downloadCalendar() {
-          const map = {
-            friday: '2025-07-25',
-            saturday: '2025-07-26',
-            sunday: '2025-07-27'
-          };
-          let ics = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Open Sauce//Schedule//EN\nCALSCALE:GREGORIAN\n';
-          for (const day of Object.keys(map)) {
-            scheduleData[day].forEach(evt => {
-              const start = to24(map[day], evt.time);
-              const end = new Date(start.getTime() + parseInt(evt.length || '0') * 60000);
-              ics += 'BEGIN:VEVENT\n';
-              ics += 'DTSTART:' + formatICS(start) + '\n';
-              ics += 'DTEND:' + formatICS(end) + '\n';
-              ics += 'SUMMARY:' + evt.title.replace(/\n/g, ' ') + '\n';
-              if (evt.where) ics += 'LOCATION:' + evt.where.replace(/\n/g, ' ') + '\n';
-              if (evt.description) ics += 'DESCRIPTION:' + evt.description.replace(/\n/g, ' ') + '\n';
-              ics += 'END:VEVENT\n';
-            });
-          }
-          ics += 'END:VCALENDAR';
-          const blob = new Blob([ics], { type: 'text/calendar' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'open-sauce-schedule.ics';
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          URL.revokeObjectURL(url);
-        }
-
-        [downloadBtn, heroBtn].forEach(btn => {
-          if (!btn) return;
-          btn.addEventListener('click', e => {
-            e.preventDefault();
-            downloadCalendar();
-          });
-        });
+        container.querySelectorAll('.event-card').forEach(card => observer.observe(card));
       });
     </script>
 
