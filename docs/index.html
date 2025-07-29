@@ -173,8 +173,19 @@ layout: none
         align-items: center;
         gap: 24px;
         flex: 1;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-padding-left: calc(50vw - var(--card-width) / 2);
+        scroll-padding-right: calc(50vw - var(--card-width) / 2);
         padding-left: calc(50vw - var(--card-width) / 2);
         padding-right: calc(50vw - var(--card-width) / 2);
+        scroll-behavior: smooth;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      .cards-track::-webkit-scrollbar {
+        display: none;
       }
 
       /* Event Card Styling */
@@ -188,6 +199,7 @@ layout: none
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
+        scroll-snap-align: center;
       }
 
       .card-header {
@@ -500,7 +512,7 @@ layout: none
               tabs.forEach(b => b.classList.toggle('active', b.dataset.day === activeDay));
             }
           });
-        }, { root: null, rootMargin: '0px -50% 0px -50%', threshold: 0 });
+        }, { root: track, rootMargin: '0px -50% 0px -50%', threshold: 0 });
 
         Array.from(track.children).forEach(card => observer.observe(card));
 
@@ -511,7 +523,7 @@ layout: none
           });
           updateTrackWidth();
           setUniformHeight();
-          track.style.transform = 'translateX(0)';
+          track.scrollTo({ left: 0 });
           if (day) {
             tabs.forEach(b => b.classList.toggle('active', b.dataset.day === day));
           } else {
@@ -534,23 +546,7 @@ layout: none
         });
         applyFilter(null);
 
-        const wrapper = document.querySelector('.scroll-section-wrapper');
-
-        function onScroll() {
-          const horizontalScrollDistance = track.scrollWidth - window.innerWidth;
-          const rect = wrapper.getBoundingClientRect();
-          const scrollProgress = -rect.top;
-          const total = rect.height - window.innerHeight;
-          let pct = scrollProgress / total;
-          pct = Math.min(Math.max(pct, 0), 1);
-          const transformX = pct * horizontalScrollDistance;
-          requestAnimationFrame(() => {
-            track.style.transform = `translateX(-${transformX}px)`;
-          });
-        }
-
-        window.addEventListener('scroll', onScroll);
-        onScroll();
+        track.scrollLeft = 0;
 
         function to24(dateStr, timeStr) {
           const [t, ampm] = timeStr.split(' ');
