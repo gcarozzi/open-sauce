@@ -1,28 +1,70 @@
+# Main layout styles
 body{
   margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
   line-height:1.4;
   background:#fff;
   color:#333;
   scroll-behavior:smooth;
 }
+
+/* Hero header styles */
 .hero{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   text-align:center;
-  padding:2rem 1rem;
-  background:linear-gradient(120deg,#000,#333);
+  min-height:100vh;
   color:#fff;
+  background:url('https://a.storyblok.com/f/188325/1024x683/bfe4f13b8b/alex-kotliarskyi-ourqhrte2im-unsplash-1024x683.jpg/m/filters:quality(75)?') center/cover no-repeat;
 }
-.hero h1{margin:0 0 1rem; font-size:2rem;}
-.hero button{
-  background:#007aff;
+.hero::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+}
+.hero-content{
+  position:relative;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:2rem;
+}
+.hero-logo{
+  max-width:180px;
+  width:100%;
+  margin-bottom:1rem;
+}
+.hero h1{
+  margin:0.5rem 0;
+  font-size:3rem;
+  font-weight:700;
+}
+.subtitle{
+  max-width:800px;
+  margin:0 0 2rem;
+  font-size:1.25rem;
+}
+.download-btn{
+  background:#fff;
+  color:#333;
   border:0;
-  color:#fff;
   padding:.75rem 1.5rem;
-  border-radius:8px;
+  border-radius:999px;
   font-size:1rem;
   cursor:pointer;
-  transition:transform .2s;
-  will-change:transform;
+  transition:background-color .2s, transform .2s;
+}
+.download-btn:hover{
+  background:#f0f0f0;
+}
+.download-btn:focus{
+  outline:3px solid #007aff;
+  outline-offset:2px;
 }
 #schedule{
   padding:2rem 1rem;
@@ -87,5 +129,6 @@ body{
 }
 
 @media (max-width:599px){
-  .hero h1{font-size:1.5rem;}
+  .hero h1{font-size:2rem;}
+  .subtitle{font-size:1rem;}
 }
