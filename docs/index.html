@@ -1,22 +1,107 @@
 ---
 layout: none
 ---
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Open Sauce Schedule 2025</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-</head>
-<body>
-<header class="hero">
-  <h1>Open Sauce 2025 Schedule</h1>
-  <button id="downloadBtn">Download Calendar</button>
-</header>
-<main id="schedule"></main>
-<script src="app.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Open Sauce Schedule 2025</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        font-family: "Poppins", sans-serif;
+      }
+
+      .hero-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 80vh;
+        color: white;
+        background-image:
+          linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+          url("https://a.storyblok.com/f/188325/1024x683/bfe4f13b8b/alex-kotliarskyi-ourqhrte2im-unsplash-1024x683.jpg/m/filters:quality(75)?");
+        background-size: cover;
+        background-position: center center;
+      }
+
+      .hero-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        max-width: 800px;
+        padding: 20px;
+      }
+
+      .hero-logo {
+        width: 150px;
+        margin-bottom: 2rem;
+      }
+
+      .hero-title {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-top: 0;
+        margin-bottom: 1rem;
+      }
+
+      .hero-subtitle {
+        font-size: 1.25rem;
+        font-weight: 400;
+        max-width: 600px;
+        margin-bottom: 2.5rem;
+      }
+
+      .hero-cta {
+        display: inline-block;
+        padding: 12px 28px;
+        border: 2px solid white;
+        border-radius: 5px;
+        color: white;
+        background-color: transparent;
+        text-decoration: none;
+        font-size: 1rem;
+        font-weight: 700;
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
+      }
+
+      .hero-cta:hover {
+        background-color: white;
+        color: black;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero-header">
+      <div class="hero-content">
+        <img
+          src="https://opensauce.com/wp-content/uploads/2023/02/OS-LOGO-W-Header.png"
+          alt="Open Sauce Logo"
+          class="hero-logo"
+        />
+        <h1 class="hero-title">Open Sauce 2025</h1>
+        <p class="hero-subtitle">
+          Join the world's premier open source conference. Connect, collaborate,
+          and create with the brightest minds in technology.
+        </p>
+        <a href="#" class="hero-cta">Download Calendar</a>
+      </div>
+    </header>
+    <main id="schedule"></main>
+    <script src="app.js"></script>
+  </body>
 </html>
