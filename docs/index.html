@@ -120,7 +120,7 @@ layout: none
       /* Sticky Scroll Styles */
       .scroll-section-wrapper {
         position: relative;
-        height: 600vh;
+        height: 100vh;
       }
 
       .sticky-container {
@@ -535,17 +535,25 @@ layout: none
         applyFilter(null);
 
         const wrapper = document.querySelector('.scroll-section-wrapper');
+        let maxScroll = 0;
+
+        function updateWrapperHeight() {
+          maxScroll = track.scrollWidth - window.innerWidth;
+          wrapper.style.height = maxScroll + window.innerHeight + 'px';
+        }
+
+        updateWrapperHeight();
+        window.addEventListener('resize', () => {
+          updateTrackWidth();
+          setUniformHeight();
+          updateWrapperHeight();
+        });
 
         function onScroll() {
-          const horizontalScrollDistance = track.scrollWidth - window.innerWidth;
           const rect = wrapper.getBoundingClientRect();
-          const scrollProgress = -rect.top;
-          const total = rect.height - window.innerHeight;
-          let pct = scrollProgress / total;
-          pct = Math.min(Math.max(pct, 0), 1);
-          const transformX = pct * horizontalScrollDistance;
+          const progress = Math.min(Math.max(-rect.top, 0), maxScroll);
           requestAnimationFrame(() => {
-            track.style.transform = `translateX(-${transformX}px)`;
+            track.style.transform = `translateX(-${progress}px)`;
           });
         }
 
