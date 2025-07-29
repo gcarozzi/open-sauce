@@ -124,12 +124,17 @@ layout: none
         height: 100vh;
         width: 100%;
         overflow: hidden;
+        display: flex;
+        flex-direction: column;
       }
 
       .tabs-container {
         display: flex;
         gap: 16px;
-        margin-bottom: 40px;
+        margin-bottom: 16px;
+        justify-content: center;
+        position: relative;
+        z-index: 5;
       }
 
       .tab-button {
@@ -162,6 +167,7 @@ layout: none
         flex-wrap: nowrap;
         align-items: center;
         gap: 24px;
+        flex: 1;
       }
 
       /* Event Card Styling */
@@ -248,7 +254,8 @@ layout: none
       #download-calendar {
         position: fixed;
         bottom: 20px;
-        right: 20px;
+        left: 50%;
+        transform: translateX(-50%);
         z-index: 100;
       }
 
@@ -277,13 +284,13 @@ layout: none
     <main id="schedule">
       <section class="schedule-section">
         <h2 class="section-title">Event Schedule</h2>
-        <div class="tabs-container">
-          <button class="tab-button" data-day="friday">Friday</button>
-          <button class="tab-button" data-day="saturday">Saturday</button>
-          <button class="tab-button" data-day="sunday">Sunday</button>
-        </div>
         <div class="scroll-section-wrapper">
           <div class="sticky-container">
+            <div class="tabs-container">
+              <button class="tab-button" data-day="friday">Friday</button>
+              <button class="tab-button" data-day="saturday">Saturday</button>
+              <button class="tab-button" data-day="sunday">Sunday</button>
+            </div>
             <div class="cards-track"></div>
           </div>
         </div>
