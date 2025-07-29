@@ -85,6 +85,10 @@ layout: none
         color: black;
       }
 
+      :root {
+        --card-width: 340px;
+      }
+
       /* Override default width for schedule container */
       #schedule {
         max-width: none;
@@ -132,7 +136,7 @@ layout: none
       .tabs-container {
         display: flex;
         gap: 16px;
-        margin-bottom: 16px;
+        margin-bottom: 10px;
         justify-content: center;
         position: relative;
         z-index: 5;
@@ -169,6 +173,8 @@ layout: none
         align-items: center;
         gap: 24px;
         flex: 1;
+        padding-left: calc(50vw - var(--card-width) / 2);
+        padding-right: calc(50vw - var(--card-width) / 2);
       }
 
       /* Event Card Styling */
@@ -176,8 +182,8 @@ layout: none
         background-color: #2C2C2C;
         border-radius: 16px;
         padding: 24px;
-        min-width: 340px; /* Use min-width to prevent squishing */
-        width: 340px;
+        min-width: var(--card-width);
+        width: var(--card-width);
         flex-shrink: 0;
         box-sizing: border-box;
         display: flex;
@@ -486,6 +492,18 @@ layout: none
         updateTrackWidth();
         setUniformHeight();
 
+        const observer = new IntersectionObserver(entries => {
+          if (activeFilter) return;
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const activeDay = entry.target.dataset.day;
+              tabs.forEach(b => b.classList.toggle('active', b.dataset.day === activeDay));
+            }
+          });
+        }, { root: null, rootMargin: '0px -50% 0px -50%', threshold: 0 });
+
+        Array.from(track.children).forEach(card => observer.observe(card));
+
         function applyFilter(day) {
           activeFilter = day;
           Array.from(track.children).forEach(card => {
@@ -494,7 +512,11 @@ layout: none
           updateTrackWidth();
           setUniformHeight();
           track.style.transform = 'translateX(0)';
-          updateActiveDay(0);
+          if (day) {
+            tabs.forEach(b => b.classList.toggle('active', b.dataset.day === day));
+          } else {
+            tabs.forEach(b => b.classList.remove('active'));
+          }
         }
 
         tabs.forEach(btn => {
@@ -514,15 +536,6 @@ layout: none
 
         const wrapper = document.querySelector('.scroll-section-wrapper');
 
-        function updateActiveDay(transformX) {
-          if (activeFilter) return;
-          const visible = Array.from(track.children).filter(c => c.style.display !== 'none');
-          const index = Math.round(transformX / (cardWidth + gap));
-          const card = visible[Math.min(index, visible.length - 1)];
-          if (!card) return;
-          tabs.forEach(b => b.classList.toggle('active', b.dataset.day === card.dataset.day));
-        }
-
         function onScroll() {
           const horizontalScrollDistance = track.scrollWidth - window.innerWidth;
           const rect = wrapper.getBoundingClientRect();
@@ -533,7 +546,6 @@ layout: none
           const transformX = pct * horizontalScrollDistance;
           requestAnimationFrame(() => {
             track.style.transform = `translateX(-${transformX}px)`;
-            updateActiveDay(transformX);
           });
         }
 
