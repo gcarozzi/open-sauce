@@ -264,6 +264,124 @@ layout: none
         background-color: #C7B9FF;
         color: #1A1A1A;
       }
+
+      /* ====================== */
+      /*       Site Footer      */
+      /* ====================== */
+
+      /* Main Footer Container */
+      .footer-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 70px; /* Vertical space between blocks */
+        background-color: #111111;
+        padding: 80px 24px;
+        font-family: 'Poppins', sans-serif;
+        text-align: center;
+      }
+
+      /* Block 1: Title Image */
+      .footer-title-image {
+        max-width: 320px;
+        height: auto;
+      }
+
+      /* Block 2: Map and Address */
+      .map-block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px; /* Space between map and address */
+        width: 100%;
+      }
+      .map-embed-wrapper {
+        max-width: 800px;
+        width: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .venue-address {
+        color: #B0B0B0;
+        font-size: 1rem; /* 16px */
+        font-weight: 400;
+        line-height: 1.6;
+        margin: 0;
+      }
+
+      /* Block 3: Image Composition */
+
+/* New main wrapper for the composition */
+.composition-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative; /* Crucial for absolute positioning of the center logo */
+  width: 100%;
+  max-width: 1024px;
+}
+
+/* Styling for both the left and right image containers */
+.image-block {
+  position: relative; /* Necessary for the .year-overlay positioning */
+  width: 48%;
+  aspect-ratio: 16 / 10;
+  border-radius: 40px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.block-bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+/* Add a subtle hover effect */
+.image-block:hover .block-bg-image {
+  transform: scale(1.05);
+}
+
+/* The '20' and '25' text overlay */
+.year-overlay {
+  position: absolute;
+  color: white;
+  font-size: clamp(3rem, 10vw, 7rem);
+  font-weight: 700;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+  z-index: 5;
+}
+
+/* Position the year '20' on the left and '25' on the right */
+.image-block.left .year-overlay {
+  right: -25px; /* Pushes it towards the center gap */
+}
+.image-block.right .year-overlay {
+  left: -25px; /* Pushes it towards the center gap */
+}
+
+/* The logo positioned in the middle */
+.center-logo {
+  position: absolute;
+  width: clamp(150px, 20vw, 200px); /* Responsive width */
+  height: auto;
+  z-index: 10; /* Ensures logo is on top of everything */
+
+  /* The following centers the logo perfectly in the parent container */
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+      /* Block 4: Copyright Notice */
+      .copyright-notice {
+        color: #B0B0B0;
+        font-size: 0.9rem; /* 14px */
+        font-weight: 400;
+        margin: 0;
+      }
     </style>
   </head>
   <body>
@@ -486,5 +604,36 @@ layout: none
         });
       });
     </script>
+
+    <footer class="footer-section">
+      <img src="https://opensauce.com/wp-content/uploads/2024/10/79c6a77888b080d6e40058ad2e21999c.png" alt="Open Sauce" class="footer-title-image" />
+      <div class="map-block">
+        <div class="map-embed-wrapper">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3158.461942484715!2d-122.310388684685!3d37.54460797980209!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808f9e68e0d75b7b%3A0x6d3623a85a4f7e2!2sSan%20Mateo%20County%20Event%20Center!5e0!3m2!1sen!2sus!4v1672531200000"
+            width="100%"
+            height="450"
+            style="border:0;"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </div>
+        <p class="venue-address">San Mateo County Event Center<br />1346 Saratoga Dr, San Mateo, CA 94403</p>
+      </div>
+      <div class="composition-wrapper">
+        <div class="image-block left">
+          <img src="https://opensauce.com/wp-content/uploads/2024/10/Stage2.png" alt="Event stage" class="block-bg-image" />
+        </div>
+
+        <img src="https://frontend.sauceplus.com/user/4.3.18-125-a94a85a/assets/Logo2025-ULrXM_zR.png" alt="Open Sauce 2025 Logo" class="center-logo" />
+
+        <div class="image-block right">
+          <img src="https://opensauce.com/wp-content/uploads/2024/10/Face.png" alt="Creator face" class="block-bg-image" />
+        </div>
+      </div>
+      <p class="copyright-notice">2025 © OPEN SAUCE INC</p>
+    </footer>
+
   </body>
 </html>
