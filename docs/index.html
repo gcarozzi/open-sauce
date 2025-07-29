@@ -310,42 +310,71 @@ layout: none
       }
 
       /* Block 3: Image Composition */
-      .composition-container {
-        position: relative; /* Crucial for positioning the overlay */
-        display: flex; /* To place the two background images side-by-side */
-        max-width: 1024px;
-        width: 100%;
-        aspect-ratio: 16 / 7; /* Maintain a consistent shape */
-        border-radius: 40px;
-        overflow: hidden; /* Clips the child images to the rounded corners */
-      }
-      .composition-bg-image {
-        width: 50%; /* Each image takes half the container width */
-        height: 100%;
-        object-fit: cover; /* Ensures images fill their space without distortion */
-      }
-      .composition-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-      .overlay-year {
-        color: white;
-        font-size: clamp(3rem, 10vw, 7rem); /* Responsive font size */
-        font-weight: 700;
-        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
-      }
-      .overlay-logo {
-        width: clamp(150px, 25vw, 300px); /* Responsive logo size */
-        height: auto;
-        margin: 0 20px;
-      }
 
+/* New main wrapper for the composition */
+.composition-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative; /* Crucial for absolute positioning of the center logo */
+  width: 100%;
+  max-width: 1024px;
+}
+
+/* Styling for both the left and right image containers */
+.image-block {
+  position: relative; /* Necessary for the .year-overlay positioning */
+  width: 48%;
+  aspect-ratio: 16 / 10;
+  border-radius: 40px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.block-bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+/* Add a subtle hover effect */
+.image-block:hover .block-bg-image {
+  transform: scale(1.05);
+}
+
+/* The '20' and '25' text overlay */
+.year-overlay {
+  position: absolute;
+  color: white;
+  font-size: clamp(3rem, 10vw, 7rem);
+  font-weight: 700;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+  z-index: 5;
+}
+
+/* Position the year '20' on the left and '25' on the right */
+.image-block.left .year-overlay {
+  right: -25px; /* Pushes it towards the center gap */
+}
+.image-block.right .year-overlay {
+  left: -25px; /* Pushes it towards the center gap */
+}
+
+/* The logo positioned in the middle */
+.center-logo {
+  position: absolute;
+  width: clamp(150px, 20vw, 200px); /* Responsive width */
+  height: auto;
+  z-index: 10; /* Ensures logo is on top of everything */
+
+  /* The following centers the logo perfectly in the parent container */
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
       /* Block 4: Copyright Notice */
       .copyright-notice {
         color: #B0B0B0;
@@ -592,11 +621,17 @@ layout: none
         </div>
         <p class="venue-address">San Mateo County Event Center<br />1346 Saratoga Dr, San Mateo, CA 94403</p>
       </div>
-      <div class="composition-container">
-        <img src="https://opensauce.com/wp-content/uploads/2024/10/Stage2.png" alt="Event stage" class="composition-bg-image" />
-        <img src="https://opensauce.com/wp-content/uploads/2024/10/Face.png" alt="Creator face" class="composition-bg-image" />
-        <div class="composition-overlay">
-          <img src="https://frontend.sauceplus.com/user/4.3.18-125-a94a85a/assets/Logo2025-ULrXM_zR.png" alt="Open Sauce 2025 Logo" class="overlay-logo" />
+      <div class="composition-wrapper">
+        <div class="image-block left">
+          <img src="https://opensauce.com/wp-content/uploads/2024/10/Stage2.png" alt="Event stage" class="block-bg-image" />
+          <span class="year-overlay">20</span>
+        </div>
+
+        <img src="https://frontend.sauceplus.com/user/4.3.18-125-a94a85a/assets/Logo2025-ULrXM_zR.png" alt="Open Sauce 2025 Logo" class="center-logo" />
+
+        <div class="image-block right">
+          <img src="https://opensauce.com/wp-content/uploads/2024/10/Face.png" alt="Creator face" class="block-bg-image" />
+          <span class="year-overlay">25</span>
         </div>
       </div>
       <p class="copyright-notice">2025 © OPEN SAUCE INC</p>
