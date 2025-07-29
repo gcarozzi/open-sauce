@@ -511,6 +511,7 @@ layout: none
           });
           updateTrackWidth();
           setUniformHeight();
+          updateWrapperHeight();
           track.style.transform = 'translateX(0)';
           if (day) {
             tabs.forEach(b => b.classList.toggle('active', b.dataset.day === day));
@@ -538,7 +539,11 @@ layout: none
         let maxScroll = 0;
 
         function updateWrapperHeight() {
-          maxScroll = track.scrollWidth - window.innerWidth;
+          const visibleCards = Array.from(track.children).filter(c => c.style.display !== 'none');
+          if (!visibleCards.length) return;
+          const lastCard = visibleCards[visibleCards.length - 1];
+          const lastCenter = lastCard.offsetLeft + lastCard.offsetWidth / 2;
+          maxScroll = Math.max(0, lastCenter - window.innerWidth / 2);
           wrapper.style.height = maxScroll + window.innerHeight + 'px';
         }
 
@@ -551,6 +556,10 @@ layout: none
 
         function onScroll() {
           const rect = wrapper.getBoundingClientRect();
+          if (rect.bottom <= 0) {
+            track.style.transform = `translateX(-${maxScroll}px)`;
+            return;
+          }
           const progress = Math.min(Math.max(-rect.top, 0), maxScroll);
           requestAnimationFrame(() => {
             track.style.transform = `translateX(-${progress}px)`;
