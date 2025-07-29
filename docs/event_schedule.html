@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Open Sauce Event Schedule</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
+    <style>
+      body {
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
+        background-color: #000;
+        color: #fff;
+      }
+      header {
+        padding: 40px 0;
+        text-align: center;
+        background-color: #222;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+      }
+      /* General Section Styling */
+      .schedule-section {
+        background-color: #1A1A1A;
+        padding: 80px 0;
+        font-family: 'Poppins', sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .section-title {
+        color: #C7B9FF;
+        font-size: 2.5rem; /* 40px */
+        font-weight: 700;
+        margin-bottom: 40px;
+      }
+
+      /* Tab Navigation Styling */
+      .tabs-container {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 40px;
+      }
+
+      .tab-button {
+        background-color: transparent;
+        border: 2px solid #4A4A4A;
+        color: #B0B0B0;
+        padding: 10px 24px;
+        font-size: 1rem; /* 16px */
+        font-weight: 700;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .tab-button:hover {
+        background-color: #4A4A4A;
+        color: #FFFFFF;
+      }
+
+      .tab-button.active {
+        background-color: #C7B9FF;
+        color: #1A1A1A;
+        border-color: #C7B9FF;
+      }
+
+      /* Horizontal Scrolling Container Styling */
+      .schedule-scroll-container {
+        display: flex;
+        overflow-x: auto;
+        padding: 10px 60px 30px 60px; /* Side padding to ensure cards don't touch edges */
+        width: 100%;
+        box-sizing: border-box;
+        gap: 24px;
+        /* Hide scrollbar for a cleaner look */
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+      }
+
+      .schedule-scroll-container::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, and Opera */
+      }
+
+      /* Event Card Styling */
+      .event-card {
+        background-color: #2C2C2C;
+        border-radius: 16px;
+        padding: 24px;
+        min-width: 340px; /* Use min-width to prevent squishing */
+        width: 340px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin-bottom: 16px;
+      }
+
+      .event-time {
+        color: #FFFFFF;
+        font-size: 1rem;
+        font-weight: 700;
+      }
+
+      .event-location {
+        color: #C7B9FF;
+        font-size: 1rem;
+        font-weight: 700;
+      }
+
+      .event-title {
+        color: #FFFFFF;
+        font-size: 1.25rem; /* 20px */
+        font-weight: 700;
+        margin: 0 0 24px 0;
+        line-height: 1.3;
+      }
+
+      .speaker-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .speaker-image {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 16px;
+      }
+
+      .speaker-name {
+        color: #FFFFFF;
+        font-size: 1rem;
+        font-weight: 700;
+      }
+
+      .event-description {
+        color: #B0B0B0;
+        font-size: 0.9rem; /* 14px */
+        font-weight: 400;
+        line-height: 1.6;
+        margin: 0;
+      }
+
+      /* Primary CTA Button Styling */
+      .primary-cta-button {
+        background-color: #8A6CFF; /* A slightly darker purple for the button */
+        color: #FFFFFF;
+        padding: 14px 32px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 700;
+        margin-top: 40px;
+        display: inline-block;
+        transition: background-color 0.3s ease;
+      }
+
+      .primary-cta-button:hover {
+        background-color: #C7B9FF;
+        color: #1A1A1A;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Open Sauce 2025</h1>
+    </header>
+    <section class="schedule-section">
+      <h2 class="section-title">Event Schedule</h2>
+
+      <div class="tabs-container">
+        <button class="tab-button active" data-day="friday">Friday</button>
+        <button class="tab-button" data-day="saturday">Saturday</button>
+        <button class="tab-button" data-day="sunday">Sunday</button>
+      </div>
+
+      <div class="schedule-scroll-container"></div>
+
+      <a href="#" class="primary-cta-button">Download Calendar</a>
+    </section>
+
+    <script>
+      async function loadAgenda() {
+        const res = await fetch('agenda.json');
+        return await res.json();
+      }
+
+      function createCard(event, speaker) {
+        const card = document.createElement('div');
+        card.className = 'event-card';
+        card.innerHTML = `
+          <div class="card-header">
+            <span class="event-time">${event.time}</span>
+            <span class="event-location">${event.where}</span>
+          </div>
+          <h3 class="event-title">${event.title}</h3>
+          <div class="speaker-info">
+            <img src="${speaker.media}" alt="${speaker.name}" class="speaker-image">
+            <div class="speaker-details">
+              <span class="speaker-name">${speaker.name}</span>
+            </div>
+          </div>
+          <p class="event-description">${event.description || ''}</p>`;
+        return card;
+      }
+
+      function renderDay(day, data) {
+        const container = document.querySelector('.schedule-scroll-container');
+        container.innerHTML = '';
+        data[day].forEach(evt => {
+          if (Array.isArray(evt.speakers)) {
+            evt.speakers.forEach(sp => {
+              if (sp.name && sp.media) {
+                container.appendChild(createCard(evt, sp));
+              }
+            });
+          }
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', async () => {
+        const data = await loadAgenda();
+        const tabs = document.querySelectorAll('.tab-button');
+
+        tabs.forEach(btn => {
+          btn.addEventListener('click', () => {
+            tabs.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const day = btn.getAttribute('data-day');
+            renderDay(day, data);
+          });
+        });
+
+        renderDay('friday', data);
+      });
+    </script>
+  </body>
+</html>
