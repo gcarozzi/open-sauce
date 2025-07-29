@@ -112,52 +112,27 @@ layout: none
         margin-bottom: 40px;
       }
 
-      /* Tab Navigation Styling */
-      .tabs-container {
-        display: flex;
-        gap: 16px;
-        margin-bottom: 40px;
+      /* Sticky Scroll Styles */
+      .scroll-section-wrapper {
+        position: relative;
+        height: 600vh;
       }
 
-      .tab-button {
-        background-color: transparent;
-        border: 2px solid #4A4A4A;
-        color: #B0B0B0;
-        padding: 10px 24px;
-        font-size: 1rem; /* 16px */
-        font-weight: 700;
-        border-radius: 20px;
-        cursor: pointer;
-        transition: all 0.3s ease;
+      .sticky-container {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        width: 100%;
+        overflow: hidden;
       }
 
-      .tab-button:hover {
-        background-color: #4A4A4A;
-        color: #FFFFFF;
-      }
-
-      .tab-button.active {
-        background-color: #C7B9FF;
-        color: #1A1A1A;
-        border-color: #C7B9FF;
-      }
-
-      /* Horizontal Scrolling Container Styling */
-      .schedule-scroll-container {
+      .cards-track {
+        position: relative;
+        height: 100%;
         display: flex;
         flex-wrap: nowrap;
-        overflow-x: auto;
-        padding: 10px 60px 30px 60px; /* Side padding to ensure cards don't touch edges */
-        width: 100%;
-        box-sizing: border-box;
+        align-items: center;
         gap: 24px;
-        /* Hide scrollbar for a cleaner look */
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
-      }
-
-      .schedule-scroll-container::-webkit-scrollbar {
-        display: none; /* Chrome, Safari, and Opera */
       }
 
       /* Event Card Styling */
@@ -267,30 +242,13 @@ layout: none
       <section class="schedule-section">
         <h2 class="section-title">Event Schedule</h2>
 
-        <div class="tabs-container">
-          <button class="tab-button active" data-day="friday">Friday</button>
-          <button class="tab-button" data-day="saturday">Saturday</button>
-          <button class="tab-button" data-day="sunday">Sunday</button>
-        </div>
-
-        <div class="schedule-scroll-container">
-          <div class="event-card">
-            <div class="card-header">
-              <span class="event-time">09:30 AM</span>
-              <span class="event-location">Industry Stage</span>
-            </div>
-            <h3 class="event-title">Welcome to Open Sauce with William Osman</h3>
-            <div class="speaker-info">
-              <img src="https://opensauce.com/wp-content/uploads/2025/02/William_Osman.png" alt="William Osman" class="speaker-image">
-              <div class="speaker-details">
-                <span class="speaker-name">William Osman</span>
-              </div>
-            </div>
-            <p class="event-description">Join the official kickoff of Open Sauce Year 3...</p>
+        <div class="scroll-section-wrapper">
+          <div class="sticky-container">
+            <div class="cards-track"></div>
           </div>
         </div>
 
-        <a href="#" id="download-calendar" class="primary-cta-button">Download Calendar</a>
+        <a href="open-sauce-schedule.ics" id="download-calendar" class="primary-cta-button" download>Download Calendar</a>
       </section>
     </main>
     <script>
@@ -298,52 +256,69 @@ layout: none
       document.addEventListener('DOMContentLoaded', async () => {
         const res = await fetch('agenda.json');
         scheduleData = await res.json();
-        const container = document.querySelector('.schedule-scroll-container');
-        const tabs = document.querySelectorAll('.tab-button');
+        const track = document.querySelector('.cards-track');
         const downloadBtn = document.getElementById('download-calendar');
         const heroBtn = document.querySelector('.hero-cta');
+        let allSpeakers = [];
 
-        function createCard(evt, speaker) {
-          if (!speaker || !speaker.name || !speaker.media) return null;
+        ['friday','saturday','sunday'].forEach(day => {
+          scheduleData[day].forEach(evt => {
+            if (Array.isArray(evt.speakers)) {
+              evt.speakers.forEach(sp => {
+                if (sp.name && sp.media) {
+                  allSpeakers.push({
+                    ...sp,
+                    time: evt.time,
+                    where: evt.where,
+                    title: evt.title,
+                    description: evt.description || ''
+                  });
+                }
+              });
+            }
+          });
+        });
+
+        allSpeakers.forEach(sp => {
           const card = document.createElement('div');
           card.className = 'event-card';
           card.innerHTML = `
             <div class="card-header">
-              <span class="event-time">${evt.time}</span>
-              <span class="event-location">${evt.where}</span>
+              <span class="event-time">${sp.time}</span>
+              <span class="event-location">${sp.where}</span>
             </div>
-            <h3 class="event-title">${evt.title}</h3>
+            <h3 class="event-title">${sp.title}</h3>
             <div class="speaker-info">
-              <img src="${speaker.media}" alt="${speaker.name}" class="speaker-image">
+              <img src="${sp.media}" alt="${sp.name}" class="speaker-image">
               <div class="speaker-details">
-                <span class="speaker-name">${speaker.name}</span>
+                <span class="speaker-name">${sp.name}</span>
               </div>
             </div>
-            <p class="event-description">${evt.description}</p>`;
-          return card;
-        }
-
-        function displayDay(day) {
-          container.innerHTML = '';
-          scheduleData[day].forEach(evt => {
-            if (Array.isArray(evt.speakers)) {
-              evt.speakers.forEach(sp => {
-                const card = createCard(evt, sp);
-                if (card) container.appendChild(card);
-              });
-            }
-          });
-        }
-
-        tabs.forEach(btn => {
-          btn.addEventListener('click', () => {
-            tabs.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            displayDay(btn.dataset.day);
-          });
+            <p class="event-description">${sp.description}</p>`;
+          track.appendChild(card);
         });
 
-        displayDay('friday');
+        const cardWidth = 340;
+        const gap = 24;
+        track.style.width = allSpeakers.length * (cardWidth + gap) - gap + 'px';
+
+        const wrapper = document.querySelector('.scroll-section-wrapper');
+
+        function onScroll() {
+          const horizontalScrollDistance = track.scrollWidth - window.innerWidth;
+          const rect = wrapper.getBoundingClientRect();
+          const scrollProgress = -rect.top;
+          const total = rect.height - window.innerHeight;
+          let pct = scrollProgress / total;
+          pct = Math.min(Math.max(pct, 0), 1);
+          const transformX = pct * horizontalScrollDistance;
+          requestAnimationFrame(() => {
+            track.style.transform = `translateX(-${transformX}px)`;
+          });
+        }
+
+        window.addEventListener('scroll', onScroll);
+        onScroll();
 
         function to24(dateStr, timeStr) {
           const [t, ampm] = timeStr.split(' ');
