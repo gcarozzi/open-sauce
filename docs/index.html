@@ -126,6 +126,35 @@ layout: none
         overflow: hidden;
       }
 
+      .tabs-container {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 40px;
+      }
+
+      .tab-button {
+        background-color: transparent;
+        border: 2px solid #4A4A4A;
+        color: #B0B0B0;
+        padding: 10px 24px;
+        font-size: 1rem;
+        font-weight: 700;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .tab-button:hover {
+        background-color: #4A4A4A;
+        color: #FFFFFF;
+      }
+
+      .tab-button.active {
+        background-color: #C7B9FF;
+        color: #1A1A1A;
+        border-color: #C7B9FF;
+      }
+
       .cards-track {
         position: relative;
         height: 100%;
@@ -216,6 +245,13 @@ layout: none
         transition: background-color 0.3s ease;
       }
 
+      #download-calendar {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 100;
+      }
+
       .primary-cta-button:hover {
         background-color: #C7B9FF;
         color: #1A1A1A;
@@ -241,7 +277,11 @@ layout: none
     <main id="schedule">
       <section class="schedule-section">
         <h2 class="section-title">Event Schedule</h2>
-
+        <div class="tabs-container">
+          <button class="tab-button" data-day="friday">Friday</button>
+          <button class="tab-button" data-day="saturday">Saturday</button>
+          <button class="tab-button" data-day="sunday">Sunday</button>
+        </div>
         <div class="scroll-section-wrapper">
           <div class="sticky-container">
             <div class="cards-track"></div>
@@ -257,9 +297,11 @@ layout: none
         const res = await fetch('agenda.json');
         scheduleData = await res.json();
         const track = document.querySelector('.cards-track');
+        const tabs = document.querySelectorAll('.tab-button');
         const downloadBtn = document.getElementById('download-calendar');
         const heroBtn = document.querySelector('.hero-cta');
         let allSpeakers = [];
+        let activeFilter = null;
 
         ['friday','saturday','sunday'].forEach(day => {
           scheduleData[day].forEach(evt => {
@@ -271,6 +313,7 @@ layout: none
                     time: evt.time,
                     where: evt.where,
                     title: evt.title,
+                    day,
                     description: evt.description || ''
                   });
                 }
@@ -282,6 +325,7 @@ layout: none
         allSpeakers.forEach(sp => {
           const card = document.createElement('div');
           card.className = 'event-card';
+          card.dataset.day = sp.day;
           card.innerHTML = `
             <div class="card-header">
               <span class="event-time">${sp.time}</span>
@@ -300,9 +344,58 @@ layout: none
 
         const cardWidth = 340;
         const gap = 24;
-        track.style.width = allSpeakers.length * (cardWidth + gap) - gap + 'px';
+
+        function updateTrackWidth() {
+          const visible = Array.from(track.children).filter(c => c.style.display !== 'none');
+          track.style.width = visible.length * (cardWidth + gap) - gap + 'px';
+        }
+
+        function setUniformHeight() {
+          const cards = Array.from(track.children).filter(c => c.style.display !== 'none');
+          let maxH = 0;
+          cards.forEach(c => { if (c.offsetHeight > maxH) maxH = c.offsetHeight; });
+          cards.forEach(c => { c.style.height = maxH + 'px'; });
+        }
+
+        updateTrackWidth();
+        setUniformHeight();
+
+        function applyFilter(day) {
+          activeFilter = day;
+          Array.from(track.children).forEach(card => {
+            card.style.display = !day || card.dataset.day === day ? 'flex' : 'none';
+          });
+          updateTrackWidth();
+          setUniformHeight();
+          track.style.transform = 'translateX(0)';
+          updateActiveDay(0);
+        }
+
+        tabs.forEach(btn => {
+          btn.addEventListener('click', () => {
+            if (activeFilter === btn.dataset.day) {
+              activeFilter = null;
+              tabs.forEach(b => b.classList.remove('active'));
+              applyFilter(null);
+            } else {
+              tabs.forEach(b => b.classList.remove('active'));
+              btn.classList.add('active');
+              applyFilter(btn.dataset.day);
+            }
+          });
+        });
+        applyFilter(null);
 
         const wrapper = document.querySelector('.scroll-section-wrapper');
+
+        function updateActiveDay(transformX) {
+          if (activeFilter) return;
+          const visible = Array.from(track.children).filter(c => c.style.display !== 'none');
+          const index = Math.round(transformX / (cardWidth + gap));
+          const card = visible[Math.min(index, visible.length - 1)];
+          if (!card) return;
+          tabs.forEach(b => b.classList.toggle('active', b.dataset.day === card.dataset.day));
+        }
 
         function onScroll() {
           const horizontalScrollDistance = track.scrollWidth - window.innerWidth;
@@ -314,6 +407,7 @@ layout: none
           const transformX = pct * horizontalScrollDistance;
           requestAnimationFrame(() => {
             track.style.transform = `translateX(-${transformX}px)`;
+            updateActiveDay(transformX);
           });
         }
 
