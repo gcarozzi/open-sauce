@@ -535,7 +535,9 @@ layout: none
         applyFilter(null);
 
         const wrapper = document.querySelector('.scroll-section-wrapper');
+        const stickyContainer = document.querySelector('.sticky-container');
         let maxScroll = 0;
+        let scrollerActive = true;
 
         function updateWrapperHeight() {
           maxScroll = track.scrollWidth - window.innerWidth;
@@ -550,8 +552,16 @@ layout: none
         });
 
         function onScroll() {
+          if (!scrollerActive) return;
           const rect = wrapper.getBoundingClientRect();
           const progress = Math.min(Math.max(-rect.top, 0), maxScroll);
+          if (progress >= maxScroll) {
+            scrollerActive = false;
+            track.style.transform = `translateX(-${maxScroll}px)`;
+            stickyContainer.style.position = 'relative';
+            wrapper.style.height = window.innerHeight + 'px';
+            return;
+          }
           requestAnimationFrame(() => {
             track.style.transform = `translateX(-${progress}px)`;
           });
