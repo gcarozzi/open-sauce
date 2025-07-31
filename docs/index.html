@@ -511,6 +511,7 @@ layout: none
           });
           updateTrackWidth();
           setUniformHeight();
+          updateWrapperHeight();
           track.style.transform = 'translateX(0)';
           if (day) {
             tabs.forEach(b => b.classList.toggle('active', b.dataset.day === day));
